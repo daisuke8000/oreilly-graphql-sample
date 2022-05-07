@@ -1,0 +1,156 @@
+scalar DateTime
+
+enum PhotoCategory {
+    SELFIE
+    PORTRAIT
+    ACTION
+    LANDSCAPE
+    GRAPHIC
+}
+
+enum SortDirection {
+    ASCENDING
+    DESCENDING
+}
+
+enum SorttablePhotoField{
+    name
+    description
+    category
+    created
+}
+
+"""
+github認可済User
+"""
+type User {
+    """
+    github-loginid
+    """
+    githubLogin: ID!
+    """
+    github-username
+    """
+    name: String
+    """
+    github-profile-images-url
+    """
+    avatar: String
+    """
+    github-post-photo
+    """
+    postedPhotos(
+        filter: PhotoFilter
+        paging: DataPage
+        sorting: DataSort
+    ): [Photo!]!
+    """
+    github-inphoto
+    """
+    inPhotos(
+        filter: PhotoFilter
+        paging: DataPage
+        sorting: DataSort
+    ): [Photo!]
+    friends: [Friendship!]!
+}
+
+type Friendship {
+    friends: [User!]!
+    howLong: Int!
+    whereWeMet: Location
+}
+
+type Location {
+    place: String!
+}
+
+type Photo {
+    id: ID!
+    name: String!
+    url: String!
+    description: String
+    created: DateTime!
+    category:PhotoCategory!
+    postedBy: User!
+    taggedUsers(
+        sorting: DataSort
+    ): [User!]!
+}
+
+type AuthPayload {
+    user: User!
+    token: String!
+}
+
+type Mutation {
+    """
+    github-auth-user
+    """
+    postPhoto(
+        "input new Photo name,description,category"
+        input: PostPhotoInput!
+    ): Photo!
+    "github-auth by sending-code"
+    githubAuth(code: String!): AuthPayload!
+}
+
+type Subscription{
+    newPhoto(category: PhotoCategory): Photo!
+    newUser: User!
+}
+"""
+post-photo sending-input
+"""
+input PostPhotoInput {
+    "new-photo-name"
+    name: String!
+    "(optional)photo-description"
+    description: String
+    "(optional)photo-category"
+    category: PhotoCategory=PORTRAIT
+}
+
+input PhotoFilter {
+    category:PhotoCategory
+    createdBetween: DateRange
+    taggedUsers: [ID!]
+    searchText: String
+}
+
+input DateRange {
+    start: DateTime!
+    end: DateTime!
+}
+
+input DataPage {
+    first: Int=25
+    start: Int=0
+}
+
+input DataSort {
+    sort: SortDirection=DESCENDING
+    sortBy: SorttablePhotoField=created
+}
+
+type Query {
+    totalPhotos: Int!
+    allPhotos(
+        filter: PhotoFilter
+        paging: DataPage
+        sorting: DataSort
+    ): [Photo!]!
+    Photo(id: ID!): Photo!
+    totalUsers: Int!
+    allUsers(
+        paging: DataPage
+        sorting: DataSort
+    ): [User!]!
+    User(githubLogin: ID!): User!
+}
+
+schema {
+    query: Query
+    mutation: Mutation
+    subscription: Subscription
+}
