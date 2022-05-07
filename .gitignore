@@ -1,0 +1,4 @@
+# プロジェクトの除外パス
+.idea
+yarn.lock
+/node_modules/
