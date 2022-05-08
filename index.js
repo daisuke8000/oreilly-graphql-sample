@@ -5,7 +5,7 @@ const expressPlayground = require(`graphql-playground-middleware-express`).defau
 const { readFileSync } = require(`fs`)
 let typeDefs = readFileSync('./typeDefs.graphql', 'UTF-8')
 
-const resolvers = require('./resolvers/index')
+const resolvers = require('./resolvers')
 
 //  2. Add express-application
 const app = express()
